@@ -1,0 +1,6 @@
+{
+    "python.analysis.extraPaths": [
+        "./auth_service",
+        "./user_service/src"
+    ]
+}

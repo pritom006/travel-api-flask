@@ -1,0 +1,98 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Destination Service API",
+    "description": "API for managing travel destinations",
+    "version": "1.0.0"
+  },
+  "host": "127.0.0.1:5001",
+  "basePath": "/",
+  "schemes": ["http"],
+  "paths": {
+    "/destinations": {
+      "get": {
+        "summary": "Retrieve destinations",
+        "description": "Admin retrieves all destinations. Regular users retrieve only their destinations.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "description": "Bearer token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": { "description": "List of destinations" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Permission denied" }
+        }
+      },
+      "post": {
+        "summary": "Add a new destination",
+        "description": "Admin can add a new destination.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "description": "Bearer token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "destination",
+            "description": "Destination to add",
+            "schema": {
+              "$ref": "#/definitions/DestinationRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": { "description": "Destination added" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Permission denied" },
+          "400": { "description": "Bad request" }
+        }
+      }
+    },
+    "/destinations/{destination_id}": {
+      "delete": {
+        "summary": "Delete a destination",
+        "description": "Deletes a destination by ID (Admin-only).",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "description": "Bearer token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "destination_id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "ID of the destination to delete"
+          }
+        ],
+        "responses": {
+          "200": { "description": "Destination deleted successfully" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Permission denied" },
+          "404": { "description": "Destination not found" }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "DestinationRequest": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "location": { "type": "string" }
+      }
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Auth Service API",
+    "description": "API documentation for the Authentication Service"
+  },
+  "host": "localhost:5003",
+  "basePath": "/",
+  "schemes": ["http"],
+  "paths": {
+    "/admin_access": {
+      "post": {
+        "summary": "Check Admin Access",
+        "description": "Verify if the token is valid and the user is an Admin.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "description": "Bearer token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": { "description": "Admin access granted" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Permission denied" },
+          "400": { "description": "Invalid token format" }
+        }
+      }
+    }
+  }
+}
