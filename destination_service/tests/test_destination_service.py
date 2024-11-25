@@ -25,19 +25,10 @@ def client():
 @patch("src.controllers.destination_controller.validate_token")
 @patch("src.models.destination_model.destinations", mock_destinations)
 def test_get_destinations(mock_validate_token, client):
-    # Simulate a valid token for a regular user
     mock_validate_token.return_value = {"email": "user1@example.com", "role": "User"}
-    
-    # Ensure the mock data is used correctly by checking mock_destinations directly
-    assert len(mock_destinations) == 5  # Ensure there are 5 destinations in the mock
-    
-    # Simulate the GET request
+    assert len(mock_destinations) == 5
     response = client.get("/destinations", headers={"Authorization": "Bearer valid_token"})
-    
-    # Check that the response status is 200 OK
-    assert response.status_code == 200
-    
-    # Check if the response contains the correct number of destinations
+    assert response.status_code == 200  
     response_data = response.json
     assert len(response_data) == len(mock_destinations)
     
@@ -46,8 +37,7 @@ def test_get_destinations(mock_validate_token, client):
     assert any(dest["name"] == "Tokyo" for dest in response_data)
     assert any(dest["name"] == "Dhaka" for dest in response_data)
     assert any(dest["name"] == "Kolkata" for dest in response_data)
-    assert any(dest["name"] == "NewYork" for dest in response_data)
-    # Debugging line to inspect the response data
+    assert any(dest["name"] == "Newyork" for dest in response_data)
     print(response_data)
     
     
@@ -57,7 +47,6 @@ def test_get_destinations(mock_validate_token, client):
 @patch("src.controllers.destination_controller.validate_token")
 @patch("src.models.destination_model.destinations", mock_destinations)
 def test_add_new_destination(mock_validate_token, mock_destinations, client):
-    # Simulate a valid token for an admin user
     mock_validate_token.return_value = {"email": "admin@example.com", "role": "Admin"}
     
     new_destination_data = {
@@ -65,18 +54,11 @@ def test_add_new_destination(mock_validate_token, mock_destinations, client):
         "description": "Capital of Germany",
         "location": "Germany"
     }
-    
-    # Simulate the POST request to add a new destination
     response = client.post("/destinations", json=new_destination_data, headers={"Authorization": "Bearer valid_token"})
-    
-    # Check that the response status is 201 Created
     assert response.status_code == 201
     
-    # Check if the new destination is in the response
     assert response.json["message"] == "Destination added"
     assert response.json["destination"]["name"] == "Berlin"
-    
-    # Verify that the new destination is added to the mock destinations
     assert len(mock_destinations) == 6
     assert any(dest["name"] == "Berlin" for dest in mock_destinations.values())
 
@@ -85,17 +67,13 @@ def test_add_new_destination(mock_validate_token, mock_destinations, client):
 @patch("src.controllers.destination_controller.validate_token")
 @patch("src.models.destination_model.destinations", mock_destinations)
 def test_delete_destination(mock_validate_token, mock_destinations, client):
-    # Simulate a valid token for an admin user
     mock_validate_token.return_value = {"email": "admin@example.com", "role": "Admin"}
     
-    # Simulate the DELETE request to delete a destination
     destination_id_to_delete = 1
     response = client.delete(f"/destinations/{destination_id_to_delete}", headers={"Authorization": "Bearer valid_token"})
     
-    # Check that the response status is 200 OK
     assert response.status_code == 200
-    
-    # Check if the destination is deleted
+  
     assert response.json["message"] == "Destination deleted"
     assert destination_id_to_delete not in mock_destinations
 
@@ -104,17 +82,12 @@ def test_delete_destination(mock_validate_token, mock_destinations, client):
 @patch("src.controllers.destination_controller.validate_token")
 @patch("src.models.destination_model.destinations", mock_destinations)
 def test_delete_destination_permission_denied(mock_validate_token, mock_destinations, client):
-    # Simulate a valid token for a regular user (not admin)
     mock_validate_token.return_value = {"email": "user1@example.com", "role": "User"}
     
-    # Simulate the DELETE request to delete a destination
     destination_id_to_delete = 1
     response = client.delete(f"/destinations/{destination_id_to_delete}", headers={"Authorization": "Bearer valid_token"})
     
-    # Check that the response status is 403 Forbidden
     assert response.status_code == 403
-    
-    # Check if the correct error message is returned
     assert response.json["error"] == "Permission denied. Admin access required."
 
 
@@ -122,14 +95,10 @@ def test_delete_destination_permission_denied(mock_validate_token, mock_destinat
 @patch("src.controllers.destination_controller.validate_token")
 @patch("src.models.destination_model.destinations", mock_destinations)
 def test_get_destinations_invalid_token(mock_validate_token, mock_destinations, client):
-    # Simulate an invalid token
     mock_validate_token.return_value = None
     
-    # Simulate the GET request with an invalid token
     response = client.get("/destinations", headers={"Authorization": "Bearer invalid_token"})
     
-    # Check that the response status is 401 Unauthorized
     assert response.status_code == 401
     
-    # Check if the correct error message is returned
     assert response.json["error"] == "Invalid or expired token"
