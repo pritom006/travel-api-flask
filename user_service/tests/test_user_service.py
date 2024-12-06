@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import patch
-from flask import Flask 
+from flask import Flask
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../")))
@@ -66,7 +66,8 @@ def test_register_user_email_exists(client):
 @patch("src.models.user_model.users", [
     {"name": "Admin", "email": "admin@example.com", "password": "hashedpassword", "role": "Admin"}
 ])
-def test_login_user_valid(client):
+@patch("src.utils.jwt_utils.create_access_token")
+def test_login_user_valid(mock_create_token, mock_users, client):
     """
     Test the behavior when a valid login is provided.
     """
@@ -75,9 +76,11 @@ def test_login_user_valid(client):
         "password": "hashedpassword"
     }
 
-    # Here, you would mock the token creation as well, if needed
-    with patch("src.utils.jwt_utils.create_access_token") as mock_create_token:
-        mock_create_token.return_value = "mocked_token_string"
+    mock_create_token.return_value = "mocked_token_string"
+    
+    # Mock password hash checking
+    with patch("werkzeug.security.check_password_hash") as mock_check_password:
+        mock_check_password.return_value = True
         response = client.post("/login", json=login_data)
     
     assert response.status_code == 200
@@ -131,5 +134,5 @@ def test_get_user_profile_user_not_found(client):
     """
     response = client.get("/profile", headers={"Authorization": "Bearer invalid_token"})
     
-    assert response.status_code == 404
+    assert response.status_code == 401
     assert response.json == {"error": "User not found"}

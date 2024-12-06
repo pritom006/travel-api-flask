@@ -4,7 +4,8 @@ from flask import Flask
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../")))
-from src.app import app  # Assuming your app is created in src.app
+from src.app import app  
+
 
 @pytest.fixture
 def client():
@@ -13,6 +14,7 @@ def client():
     """
     with app.test_client() as client:
         yield client
+
 
 @patch("src.models.token_model.validate_token")
 def test_validate_token_expired(mock_validate_token, client):
@@ -97,4 +99,4 @@ def test_generate_token(mock_validate_token, client):
     token = "mock_token_string"  # Mocked token string
 
     # Normally, you would call your generate_token function to generate a token
-    assert token == "mock_token_string"  # Test if the mock is set up correctly
+    assert token == "mock_token_string"  
